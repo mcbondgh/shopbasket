@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shop-basket
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: shop-basket
+  template:
+    metadata:
+      labels:
+        app: shop-basket
+    spec:
+      containers:
+        - name: shop-basket
+          image: shop-basket:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          resources:
+            limits:
+              memory: 512Mi
+              cpu: '1'
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shop-basket-balancer
+spec:
+  selector:
+    app: shop-basket
+  ports:
+    - protocol: TCP
+      port: 8000 # The port to expose to the outside
+      targetPort: 8080 # The port the application is running on in the pods
+  type: LoadBalancer
+  sessionAffinity: ClientIP
